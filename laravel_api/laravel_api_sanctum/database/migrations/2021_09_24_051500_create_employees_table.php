@@ -13,13 +13,21 @@ class CreateEmployeesTable extends Migration
      */
     public function up()
     {
+        // if (!Schema::hasTable('employees')) {
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('contact');
             $table->timestamps();
-            $table->integer('department_id');
+            $table->unsignedBigInteger('department_id')->nullable();
+            $table->integer('user_id')->nullable();
         });
+        // }
+
+        // Schema::table('employees', function (Blueprint $table) {
+        //     $table->foreignId('department_id')->nullable()
+        //         ->constrained('units');
+        // });
     }
 
     /**

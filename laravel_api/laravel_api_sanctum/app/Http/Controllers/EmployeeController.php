@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Employee;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Http\Resources\EmployeeResource;
+use App\Http\Requests\EmployeeRequest;
 
 class EmployeeController extends Controller
 {
@@ -13,7 +17,17 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        return "working";
+        // $emps = DB::table('employees')
+        //     ->join('units', 'employees.department_id', '=', 'units.id')
+        //     ->select('employees.id', 'employees.name', 'employees.contact', 'units.name as department', 'units.id as departmentId')
+        //     ->get();
+        $employees = Employee::with('department')->get();
+
+        return EmployeeResource::collection($employees);
+    }
+    public function search($name)
+    {
+        return Employee::where('name', 'like', '%' . $name . '%')->get();
     }
 
     /**
@@ -23,7 +37,6 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -32,9 +45,9 @@ class EmployeeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(EmployeeRequest $request)
     {
-        //
+        return new EmployeeResource(Employee::create($request->all()));
     }
 
     /**
@@ -45,7 +58,9 @@ class EmployeeController extends Controller
      */
     public function show($id)
     {
-        //
+        $employee = Employee::where('id', $id)->with('department')->get();
+
+        return new EmployeeResource($employee);
     }
 
     /**
@@ -66,9 +81,11 @@ class EmployeeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(EmployeeRequest $request, $id)
     {
-        //
+        $employee = Employee::findOrFail($id);
+        $employee->update($request->all());
+        return new EmployeeResource($employee);
     }
 
     /**
@@ -79,6 +96,9 @@ class EmployeeController extends Controller
      */
     public function destroy($id)
     {
-        //
+        //return new EmployeeResource([Employee::destroy($id)]);
+        $employee = Employee::findOrFail($id);
+        $employee->delete();
+        return response(null, 204);
     }
 }
