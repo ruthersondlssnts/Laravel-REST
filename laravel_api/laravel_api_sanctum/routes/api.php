@@ -26,17 +26,21 @@ use Illuminate\Support\Facades\Route;
 
 
 
-//Public Routes
 
-//Protected Routes
+
 Route::group(['prefix' => '/v1'], function () {
-    // Route::group(['middleware' => ['auth:sanctum']], function () {
-    Route::get('employee/search/{name}', [EmployeeController::class, 'search']);
-    Route::resource('employee', EmployeeController::class);
-    Route::resource('role', RoleController::class);
-    Route::get('unit/getBranchEmployees/{id}', [UnitController::class, 'getBranchEmployees']);
-    Route::get('unit/getBranches/{ascendants}', [UnitController::class, 'getBranches']);
-    Route::resource('unit', UnitController::class);
-    Route::resource('auth', AuthController::class);
-    // });
+    //Public Routes
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+
+    //Protected Routes
+    Route::group(['middleware' => ['auth:sanctum']], function () {
+        Route::get('employee/search/{name}', [EmployeeController::class, 'search']);
+        Route::resource('employee', EmployeeController::class);
+        Route::resource('role', RoleController::class);
+        Route::get('unit/getBranchEmployees/{id}', [UnitController::class, 'getBranchEmployees']);
+        Route::get('unit/getBranches/{ascendants}', [UnitController::class, 'getBranches']);
+        Route::resource('unit', UnitController::class);
+        Route::post('logout', [AuthController::class, 'logout']);
+    });
 });
