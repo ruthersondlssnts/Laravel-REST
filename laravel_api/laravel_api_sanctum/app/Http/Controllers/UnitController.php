@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UnitRequest;
+use App\Http\Resources\EmployeeResource;
 use App\Http\Resources\UnitResource;
+use App\Models\Employee;
 use App\Models\Unit;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UnitController extends Controller
 {
@@ -21,6 +24,35 @@ class UnitController extends Controller
         return UnitResource::collection(Unit::all());
     }
 
+    public function getBranches($ascendants)
+    {
+        return UnitResource::collection(
+            Unit::where('ascendants', '=', $ascendants . ',')->get()
+        );
+    }
+    public function getBranchEmployees($id)
+    {
+        $unit = Unit::findOrFail($id);
+        // $employees = Employee::with(['department' => function ($query) use ($unit) {
+        //     $query->where('name', '=', $unit->id)->get();
+        // }])->get();
+        $employees = DB::table('employees')
+            ->join('units', 'employees.department_id', '=', 'units.id')
+            ->select('employees.id', 'employees.name', 'employees.contact', 'units.name as department', 'units.id as departmentId', 'units.ascendants as departmentAscendants')
+            ->where('units.id', $unit->id)
+            ->get();
+
+        if ($employees->isEmpty()) {
+            $employees = DB::table('employees')
+                ->join('units', 'employees.department_id', '=', 'units.id')
+                ->select('employees.id', 'employees.name', 'employees.contact', 'units.name as department', 'units.id as departmentId', 'units.ascendants as departmentAscendants')
+                ->where('units.ascendants', 'like', '%' . $unit->id . '%')
+                ->get();
+            return new EmployeeResource($employees);
+        }
+
+        return new EmployeeResource($employees);
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -89,7 +121,9 @@ class UnitController extends Controller
     public function destroy($id)
     {
         $unit = Unit::findOrFail($id);
+        Unit::where('ascendants', 'LIKE', '%' . $unit->id . '%')->delete();
         $unit->delete();
+
         return response(null, 204);
     }
 }
