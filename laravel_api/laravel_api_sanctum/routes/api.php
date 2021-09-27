@@ -4,6 +4,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\AuthController;
+use App\Http\Middleware\isAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,24 +31,28 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => '/v1'], function () {
     //Public Routes
-    Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
 
     //Protected Routes
     Route::group(['middleware' => ['auth:sanctum']], function () {
         //user
-        //admin
-        //manager
-
-        Route::get('employee/search/{name}', [EmployeeController::class, 'search']);
-        Route::resource('employee', EmployeeController::class);
-        Route::resource('role', RoleController::class);
-        Route::get('unit/getBranchEmployees/{id}', [UnitController::class, 'getBranchEmployees']);
-        Route::get('unit/getBranches/{ascendants}', [UnitController::class, 'getBranches']);
-        Route::resource('unit', UnitController::class);
+        Route::get('user/{id}/edit', [AuthController::class, 'edit']);
+        Route::put('user/{id}/update', [AuthController::class, 'update']);
+        Route::put('user/{id}/changePassword', [AuthController::class, 'changePassword']);
         Route::post('logout', [AuthController::class, 'logout']);
-        Route::get('user/edit/{id}', [AuthController::class, 'edit']);
-        Route::post('user/update/{id}', [AuthController::class, 'update']);
-        Route::post('user/changePassword/{id}', [AuthController::class, 'changePassword']);
+
+        //admin
+        Route::post('register', [AuthController::class, 'register'])->middleware('is_admin');
+        Route::resource('role', RoleController::class)->middleware('is_admin');
+
+
+        //manager
+        Route::group(['middleware' => ['is_manager']], function () {
+            Route::get('employee/search/{name}', [EmployeeController::class, 'search']);
+            Route::resource('employee', EmployeeController::class);
+            Route::get('unit/getBranchEmployees/{id}', [UnitController::class, 'getBranchEmployees']);
+            Route::get('unit/getBranches/{ascendants}', [UnitController::class, 'getBranches']);
+            Route::resource('unit', UnitController::class);
+        });
     });
 });

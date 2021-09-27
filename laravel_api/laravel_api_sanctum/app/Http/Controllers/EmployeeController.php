@@ -72,7 +72,8 @@ class EmployeeController extends Controller
      */
     public function edit($id)
     {
-        //
+        $employee = Employee::findOrFail($id);
+        return new EmployeeResource($employee);
     }
 
     /**
