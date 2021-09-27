@@ -35,6 +35,10 @@ Route::group(['prefix' => '/v1'], function () {
 
     //Protected Routes
     Route::group(['middleware' => ['auth:sanctum']], function () {
+        //user
+        //admin
+        //manager
+
         Route::get('employee/search/{name}', [EmployeeController::class, 'search']);
         Route::resource('employee', EmployeeController::class);
         Route::resource('role', RoleController::class);
@@ -42,5 +46,8 @@ Route::group(['prefix' => '/v1'], function () {
         Route::get('unit/getBranches/{ascendants}', [UnitController::class, 'getBranches']);
         Route::resource('unit', UnitController::class);
         Route::post('logout', [AuthController::class, 'logout']);
+        Route::get('user/edit/{id}', [AuthController::class, 'edit']);
+        Route::post('user/update/{id}', [AuthController::class, 'update']);
+        Route::post('user/changePassword/{id}', [AuthController::class, 'changePassword']);
     });
 });

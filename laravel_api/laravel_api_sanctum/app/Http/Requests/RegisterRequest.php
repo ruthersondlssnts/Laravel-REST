@@ -25,6 +25,8 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => 'required|string',
+            'employee_id' => 'required',
+            'roles' => 'required',
             'email' => 'required|string|unique:users,email',
             'password' => 'required|string|confirmed'
         ];
