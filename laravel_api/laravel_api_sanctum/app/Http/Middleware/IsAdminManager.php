@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class IsAdmin
+class IsAdminManager
 {
     /**
      * Handle an incoming request.
@@ -19,14 +19,13 @@ class IsAdmin
     {
         $user = Auth::user();
         $user->roles;
-        $role = $user->roles()->where('name', 'admin')->get();
-        if ($role->isEmpty()) {
+        $role =$user->roles;
+        $isManager = $role->where('id',2);
+        $isAdmin = $role->where('id',3);
+        if(($isManager->isEmpty()) && ($isAdmin->isEmpty())){
             return response(["message" => "Forbidden."], 403);
         }
-
-        // if (!$user->isEmpty()) {
-        //     abort(403);
-        // }
-        return $next($request);
+       
+         return $next($request);
     }
 }

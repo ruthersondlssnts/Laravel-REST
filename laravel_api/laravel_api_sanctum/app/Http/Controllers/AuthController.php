@@ -9,9 +9,11 @@ use App\Models\Employee;
 use App\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\UserResource;
 
 class AuthController extends Controller
 {
+ 
     public function register(RegisterRequest $request)
     {
         $employee = Employee::findOrFail($request['employee_id']);
@@ -23,11 +25,13 @@ class AuthController extends Controller
         ]);
         $user->roles()->attach($request['roles']);
         $employee->user_id = $user->id;
-        $token = $user->createToken('myapptoken')->plainTextToken;
+        $employee->save();
+        
+        // $token = $user->createToken('myapptoken')->plainTextToken;
         $response = [
             'user' => $user,
             'roles' => $user->roles,
-            'token' => $token
+            // 'token' => $token
         ];
 
 
@@ -35,16 +39,25 @@ class AuthController extends Controller
         return response($response, 201);
     }
 
-    public function edit($id)
+    public function index()
     {
-        $user = User::findOrFail($id);
-        $user->roles;
-        $response = [
-            'user' => $user,
-            'roles' => Role::all(),
-        ];
-        return response($response, 201);
+        $users = User::whereHas('employee',function ($query){
+            $query->whereNotNull('user_id');
+        })->with('employee')->with('roles')->get();
+
+        return new UserResource($users);
     }
+
+    // public function edit($id)
+    // {
+    //     $user = User::findOrFail($id);
+    //     $user->roles;
+    //     $response = [
+    //         'user' => $user,
+    //         'roles' => Role::all(),
+    //     ];
+    //     return response($response, 201);
+    // }
 
     public function changePassword(Request $request, $id)
     {
@@ -69,6 +82,23 @@ class AuthController extends Controller
         return response($response, 201);
     }
 
+    public function adminChangePassword(Request $request, $id)
+    {
+        $fields = $request->validate([
+            'password' => 'required|string|confirmed'
+        ]);
+        $user = User::findOrFail($id);
+      
+        $user->password = bcrypt($fields['password']);
+        $user->save();
+
+        $response = [
+            'user' => $user,
+            'message' => 'Change Password Succesful'
+        ];
+        return new UserResource($response);
+    }
+
     public function update(Request $request, $id)
     {
         $fields = $request->validate([
@@ -87,7 +117,7 @@ class AuthController extends Controller
             'user' => $user,
             'roles' => $user->roles,
         ];
-        return response($response, 201);
+        return new UserResource($response);
     }
     public function login(Request $request)
     {
@@ -100,17 +130,17 @@ class AuthController extends Controller
         $credentials = request(['name', 'password']);
         if (!Auth::attempt($credentials)) {
             return response([
-                'message' => 'Invalid login'
+                'message' => 'Invalid login name or password'
             ], 401);
         }
-        $user = User::where('name', $request['name'])->first();
+        $user = User::where('name', $request['name'])->with('employee')->first();
 
 
         $token = $user->createToken('myapptoken')->plainTextToken;
         $response = [
             'user' => $user,
             'roles' => $user->roles,
-            'token' => $token
+            'token' => $token,
         ];
 
         return response($response, 200);
@@ -122,5 +152,13 @@ class AuthController extends Controller
         return response([
             'message' => 'Logged out'
         ], 200);
+    }
+
+    public function destroy($id)
+    {
+        $user = User::findOrFail($id);
+        $user->roles()->detach();
+        $user->delete();
+        return response(null, 204);
     }
 }

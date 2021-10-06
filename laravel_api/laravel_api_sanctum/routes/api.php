@@ -28,31 +28,60 @@ use Illuminate\Support\Facades\Route;
 
 
 
-
 Route::group(['prefix' => '/v1'], function () {
     //Public Routes
     Route::post('login', [AuthController::class, 'login']);
-
+   
+   
+    
+   
     //Protected Routes
     Route::group(['middleware' => ['auth:sanctum']], function () {
         //user
-        Route::get('user/{id}/edit', [AuthController::class, 'edit']);
-        Route::put('user/{id}/update', [AuthController::class, 'update']);
-        Route::put('user/{id}/changePassword', [AuthController::class, 'changePassword']);
+       // Route::patch('user/{id}/changePassword', [AuthController::class, 'changePassword']);
         Route::post('logout', [AuthController::class, 'logout']);
+       
 
-        //admin
-        Route::post('register', [AuthController::class, 'register'])->middleware('is_admin');
-        Route::resource('role', RoleController::class)->middleware('is_admin');
-
-
-        //manager
-        Route::group(['middleware' => ['is_manager']], function () {
-            Route::get('employee/search/{name}', [EmployeeController::class, 'search']);
-            Route::resource('employee', EmployeeController::class);
-            Route::get('unit/getBranchEmployees/{id}', [UnitController::class, 'getBranchEmployees']);
-            Route::get('unit/getBranches/{ascendants}', [UnitController::class, 'getBranches']);
-            Route::resource('unit', UnitController::class);
+       
+        Route::get('checkAuthentication',function ()
+        {
+            return response(["message"=>"Authenticated"],200);
         });
+       
+      
+        //admin
+        Route::group(['middleware' => ['is_admin']], function () {
+            Route::post('register', [AuthController::class, 'register']);
+            Route::patch('user/{id}/update', [AuthController::class, 'update']);
+            Route::patch('user/{id}/adminChangePassword', [AuthController::class, 'adminChangePassword']);
+            Route::resource('user', AuthController::class);
+            Route::get('employee/getAllNotUser', [EmployeeController::class, 'getAllNotUser']);
+            Route::resource('role', RoleController::class);
+            Route::get('checkAdminAuthorization',function ()
+            {
+                return response(["message"=>"Authorized"],200);
+            });
+        });
+        Route::group(['middleware' => ['is_admin_manager']], function () {
+            Route::get('employee/', [EmployeeController::class, 'index']);
+            Route::get('unit/getBranchEmployees/{id}', [UnitController::class, 'getBranchEmployees']);
+            Route::get('unit/getBranches/{ascendants?}', [UnitController::class, 'getBranches']);
+            Route::get('unit/', [UnitController::class, 'index']);
+            Route::get('checkAdminManagerAuthorization',function ()
+            {
+                return response(["message"=>"Authorized"],200);
+            });
+        });
+        Route::group(['middleware' => ['is_manager']], function () {
+            //manager
+            Route::get('employee/search/{name}', [EmployeeController::class, 'search']);
+            Route::resource('employee', EmployeeController::class)->except(['index','show']);
+            Route::resource('unit', UnitController::class)->except(['index']);
+           
+        });
+
+       
+        Route::get('employee/{id}', [EmployeeController::class, 'show']);
+      
     });
 });

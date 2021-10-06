@@ -21,12 +21,10 @@ class EmployeeFactory extends Factory
      */
     public function definition()
     {
-        static $number = 1;
         return [
             'name' => $this->faker->name,
             'contact' => $this->faker->phoneNumber,
             'department_id' => $this->faker->numberBetween($min = 5, $max = 7),
-            'user_id' =>  $number++
         ];
     }
 }

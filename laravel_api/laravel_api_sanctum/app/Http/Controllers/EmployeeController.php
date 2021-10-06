@@ -10,6 +10,7 @@ use App\Http\Requests\EmployeeRequest;
 
 class EmployeeController extends Controller
 {
+    
     /**
      * Display a listing of the resource.
      *
@@ -28,6 +29,10 @@ class EmployeeController extends Controller
     public function search($name)
     {
         return Employee::where('name', 'like', '%' . $name . '%')->get();
+    }
+    public function getAllNotUser()
+    {
+        return Employee::whereNull('user_id')->get();
     }
 
 
@@ -59,7 +64,7 @@ class EmployeeController extends Controller
      */
     public function show($id)
     {
-        $employee = Employee::where('id', $id)->with('department')->get();
+        $employee = Employee::where('id', $id)->with('department')->with('user')->get();
 
         return new EmployeeResource($employee);
     }

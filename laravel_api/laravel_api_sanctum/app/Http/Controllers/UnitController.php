@@ -24,11 +24,24 @@ class UnitController extends Controller
         return UnitResource::collection(Unit::all());
     }
 
-    public function getBranches($ascendants)
+    public function getBranches($ascendants=0)
     {
-        return UnitResource::collection(
-            Unit::where('ascendants', '=', $ascendants . ',')->get()
-        );
+        if($ascendants!=0){
+            $response = [
+                'units' => Unit::where('ascendants', '=', $ascendants . ',')->get(),
+                'ascendants' => $ascendants.',',
+            ];
+            return new UnitResource($response);
+        }
+        else{
+            $response = [
+                'units' => Unit::whereNull('ascendants')->get(),
+                'ascendants' =>'',
+            ];
+            return new UnitResource(
+                $response
+            );
+        }
     }
     public function getBranchEmployees($id)
     {

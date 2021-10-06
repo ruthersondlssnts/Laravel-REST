@@ -20,7 +20,9 @@ class CreateEmployeesTable extends Migration
             $table->string('contact');
             $table->timestamps();
             $table->unsignedBigInteger('department_id')->nullable();
-            $table->integer('user_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
         });
         // }
 

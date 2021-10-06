@@ -19,9 +19,9 @@ class IsManager
     {
         $user = Auth::user();
         $user->roles;
-        $role = $user->roles()->where('name', 'Manager')->get();
+        $role = $user->roles()->where('name', 'manager')->get();
         if ($role->isEmpty()) {
-            return response(["message" => "Unauthenticated."], 401);
+            return response(["message" => "Forbidden."], 403);
         }
 
         // if (!$user->isEmpty()) {
