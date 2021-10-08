@@ -24,24 +24,39 @@ class UnitController extends Controller
         return UnitResource::collection(Unit::all());
     }
 
-    public function getBranches($ascendants=0)
+    public function getBranches($ascendants='')
     {
-        if($ascendants!=0){
-            $response = [
-                'units' => Unit::where('ascendants', '=', $ascendants . ',')->get(),
-                'ascendants' => $ascendants.',',
-            ];
-            return new UnitResource($response);
+        $units;
+        if($ascendants){
+           $units= DB::select('call spGetBranches(?)',array($ascendants.','));
+        }else{
+            $units= DB::select('call spGetBranches(?)',array(""));
         }
-        else{
-            $response = [
-                'units' => Unit::whereNull('ascendants')->get(),
-                'ascendants' =>'',
-            ];
-            return new UnitResource(
-                $response
-            );
-        }
+        $response = 
+        [
+            'units' => $units,
+            'ascendants' =>$ascendants?$ascendants.',':'',
+        ];
+        // if($ascendants!=0){
+        //     $response = [
+        //         'units' => Unit::where('ascendants', '=', $ascendants . ',')->get(),
+        //         'ascendants' => $ascendants.',',
+        //     ];
+        //     return new UnitResource($response);
+        // }
+        // else{
+            
+        //     $response = [
+        //         'units' => Unit::whereNull('ascendants')->get(),
+        //         'ascendants' =>'',
+        //     ];
+        //     return new UnitResource(
+        //         $response
+        //     );
+        // }
+         return new UnitResource(
+                    $response
+                );
     }
     public function getBranchEmployees($id)
     {

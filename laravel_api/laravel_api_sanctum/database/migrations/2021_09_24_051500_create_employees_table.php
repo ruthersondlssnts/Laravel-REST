@@ -23,6 +23,7 @@ class CreateEmployeesTable extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('department_id')->references('id')->on('units')->onDelete('set null');
         });
         // }
 

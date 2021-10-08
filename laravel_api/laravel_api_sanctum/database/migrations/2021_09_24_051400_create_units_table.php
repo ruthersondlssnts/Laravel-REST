@@ -18,6 +18,7 @@ class CreateUnitsTable extends Migration
             $table->id();
             $table->string('name');
             $table->text('ascendants')->nullable();
+            $table->boolean('selectable');
             $table->timestamps();
         });
     }

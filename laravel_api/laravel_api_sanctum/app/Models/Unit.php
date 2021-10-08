@@ -10,7 +10,8 @@ class Unit extends Model
     use HasFactory;
     protected $fillable = [
         'name',
-        'ascendants'
+        'ascendants',
+        'selectable'
     ];
     public function employees()
     {
