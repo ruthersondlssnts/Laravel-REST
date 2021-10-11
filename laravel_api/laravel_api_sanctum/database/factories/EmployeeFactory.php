@@ -23,8 +23,7 @@ class EmployeeFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
-            'contact' => $this->faker->phoneNumber,
-            'department_id' => $this->faker->numberBetween($min = 5, $max = 7),
+            'contact' => $this->faker->phoneNumber
         ];
     }
 }

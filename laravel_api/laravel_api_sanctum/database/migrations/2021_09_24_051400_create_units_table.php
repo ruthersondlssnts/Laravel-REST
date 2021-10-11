@@ -15,7 +15,7 @@ class CreateUnitsTable extends Migration
     {
 
         Schema::create('units', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->unique();
             $table->string('name');
             $table->text('ascendants')->nullable();
             $table->boolean('selectable');

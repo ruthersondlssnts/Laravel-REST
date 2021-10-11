@@ -19,6 +19,6 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UnitSeeder::class
         ]);
-        Employee::factory(10)->create();
+        Employee::factory(5)->create();
     }
 }
